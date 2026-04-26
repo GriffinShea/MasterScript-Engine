@@ -18,7 +18,11 @@ class Obj:
 	
 	def propsToStr(self):
 		#doesnt print Key
-		return "".join([str(prop).split(".")[-1][:-2] + "\n" for prop in self.propsDict.keys()][1:])
+		return self.key + "\n" + "".join(["\t" + str(prop).split(".")[-1][:-2] + "\n" for prop in self.propsDict.keys()][1:])
+
+class Var:
+	def __init__(self):
+		return
 
 class Index:
 	def __init__(self):
@@ -27,6 +31,7 @@ class Index:
 		self.keysByLabel = {}			#label --> set(keys)
 		self.keysByLabel["Key"] = set()
 		self.sings = {}
+		self.var = Var()
 		return
 	
 	def __contains__(self, key):
@@ -147,12 +152,7 @@ class Index:
 		del self.objs[key][label]
 		return
 	
-	def getSing(self, name):
-		if name not in self.sings:
-			raise ValueError(name+" not in sings.")
-		return self.sings[name]
-	
-	def setSing(self, name, sing):
-		self.sings[name] = sing
+	def newVar(self):
+		self.var = Var()
 		return
-		
+	

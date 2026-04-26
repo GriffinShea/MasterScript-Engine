@@ -30,18 +30,15 @@ class Detector:
 		dynamicTreeRoot = KDimTree.makeTree(dynamicColls)
 		
 		try:
-			staticTreeRoot = index.getSing("staticTreeRoot")
-		except ValueError:
-			index.setSing(
-				"staticTreeRoot",
-				KDimTree.makeTree([
-					(coll, transf, key)
-					for (coll, transf, key)
-					in index[Coll, Transf, "Key"]
-					if coll.isStatic()
-				])
-			)
-			staticTreeRoot = index.getSing("staticTreeRoot")
+			staticTreeRoot = index.var.staticTreeRoot
+		except AttributeError:
+			index.var.staticTreeRoot = KDimTree.makeTree([
+				(coll, transf, key)
+				for (coll, transf, key)
+				in index[Coll, Transf, "Key"]
+				if coll.isStatic()
+			])
+			staticTreeRoot = index.var.staticTreeRoot
 		
 		#sift through KDimTree to detect AABB intersections
 		aabbCollisions = []

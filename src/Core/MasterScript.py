@@ -1,3 +1,4 @@
+from config import *
 
 from Core.Props.Timer import Timer
 from Core.Props.Transf import Transf
@@ -73,18 +74,19 @@ class MasterScript:
 						sepvec
 					)
 				)
-			
+		
 		#execute postscripts
 		cls.runScripts(PostScript, index)
 		
 		#run delete scripts and remove deleted transfs from the index
 		#cls.runScripts(DeleteScript, index)
 		deletedKeys = [index.deleteObj(k) for (t, k) in index[Transf, "Key"] if t.delete]
-		if deletedKeys:
+		if deletedKeys and DEBUG_SHOW_DELETED_KEYS:
 			print("Deleted transfs: ", deletedKeys)
 		
 		return
 	
+	@staticmethod
 	def updateTimers(index, dTime):
 		#update timer (not parallel due to cycleFunc)
 		for (timer, transf, key) in index[Timer, Transf, "Key"]:

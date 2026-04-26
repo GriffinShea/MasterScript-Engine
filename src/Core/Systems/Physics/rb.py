@@ -1,5 +1,5 @@
 from config import *
-from Renderer import Renderer
+from System.Engine import Engine#REVISIT: need to pass dTime to these functions instead of from engine
 from Core.Props.Physics.Rigidbody import Rigidbody
 
 class rb:
@@ -35,16 +35,16 @@ class rb:
 	def applyImpulse(cls, body, transf, impulse, contact):
 		if not body.lockOri:
 			rot = cls.calcWel(body, transf) + cls.momentify(body, transf, glm.cross(contact - transf.cpos, impulse))
-			body.lori = glmh.quatAddRotVec(transf.cori, -rot * Renderer.dTime)
-		body.lpos = transf.cpos - (cls.calcVel(body, transf) + impulse / body.mass) * Renderer.dTime
+			body.lori = glmh.quatAddRotVec(transf.cori, -rot * Engine.dTime)
+		body.lpos = transf.cpos - (cls.calcVel(body, transf) + impulse / body.mass) * Engine.dTime
 		return
 	@staticmethod
 	def calcVel(body, transf):
-		return (transf.cpos - body.lpos) / Renderer.dTime
+		return (transf.cpos - body.lpos) / Engine.dTime
 	@staticmethod
 	def calcWel(body, transf):
 		logDiff = glmh.quatLog(glmh.quatDiff(transf.cori, body.lori))
-		return 2 * glm.vec3(logDiff.x, logDiff.y, logDiff.z) / Renderer.dTime
+		return 2 * glm.vec3(logDiff.x, logDiff.y, logDiff.z) / Engine.dTime
 	@staticmethod
 	def momentify(body, transf, vector):
 		return transf.cori * ((vector * transf.cori) * body.invInertiaMat)

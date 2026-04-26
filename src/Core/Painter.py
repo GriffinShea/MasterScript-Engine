@@ -1,5 +1,5 @@
 from config import *
-from Renderer import Renderer
+from System.Renderer import Renderer
 
 from Core.Props.Transf import Transf
 from Core.Props.Timer import Timer
@@ -7,6 +7,7 @@ from Core.Props.Timer import Timer
 from Core.Props.Graphics.Camera import Camera
 from Core.Props.Graphics.Rend import Rend
 from Core.Props.Graphics.Sprite import Sprite
+from Core.Props.Graphics.Text import Text
 from Core.Props.Graphics.Model import Model
 from Core.Props.Graphics.ParticleEffect import ParticleEffect
 from Core.Props.Graphics.Segment import Segment
@@ -19,14 +20,19 @@ from Core.Props.Graphics.Lights import SpotLight
 
 class Painter:
 	@classmethod
-	def paint(cls, index, canvas):
-		cameraobj = index.get(index.getSing("camerakey"))
+	def paint(cls, state):
+		
+		canvas = state.canvas
+		index = state.index
+		camerakey = state.camerakey
+		
+		cameraobj = index.get(camerakey)
 		lightingDict = cls.getLightingDict(index, canvas)
 		cls.updateUniforms(index)
 		
 		#render each model to the shadow buffer
 		if SHADOW_MAPPING:
-			Renderer.bindAndClearShadowBuffer()
+			Renderer.prepShadowBuffer()
 			cls.drawModelShadows(index, lightingDict)
 		
 		#render each model, particle, and segment to the gBuffer
@@ -38,11 +44,10 @@ class Painter:
 			"fogDensity": canvas.fogRange.x,
 			"fogGradient": canvas.fogRange.y,
 		}
-		Renderer.bindAndClearGBuffer(canvas.bgColour)
+		Renderer.prepGBuffer(canvas.bgColour)
 		cls.drawModels(index, sceneDict)
 		cls.drawParticleEffects(index, sceneDict)
 		cls.drawSegments(index, sceneDict)
-		cls.drawSprites(index)
 		
 		#finally, use gBuffer to render the final scene frame
 		sceneDict = lightingDict | {
@@ -50,9 +55,9 @@ class Painter:
 			"fogColour": canvas.bgColour
 		}
 		
-		canvas.drawUI(index)
-		
-		Renderer.renderGBuffer(sceneDict)
+		Renderer.renderGBufferToFrame(sceneDict)
+		cls.drawSprites(index)
+		cls.drawTexts(index)
 		
 		return
 	
@@ -145,7 +150,14 @@ class Painter:
 		for (rend, transf) in index.match(Rend, Transf):
 			rend.uniformDict["worldMat"] = transf.calcMatrix()
 		
-		for (sprice, rend, transf) in index[Sprite, Rend, Transf]:
+		for (_, rend, transf) in index[Sprite, Rend, Transf]:
+			rend.uniformDict["transfMat"] = glm.scale(
+				glm.translate(glm.mat4(), transf.cpos),
+				glm.vec3(transf.scale.x, transf.scale.y, 1)
+			)
+			rend.uniformDict["depth"] = transf.cpos.z
+		
+		for (_, rend, transf) in index[Text, Rend, Transf]:
 			rend.uniformDict["transfMat"] = glm.scale(
 				glm.translate(glm.mat4(), transf.cpos),
 				glm.vec3(transf.scale.x, transf.scale.y, 1)
@@ -220,12 +232,24 @@ class Painter:
 					}
 				)
 		return
+	
 	@staticmethod
 	def drawSprites(index):
 		for (sprite, rend) in index[Sprite, Rend]:
 			if rend.visible:
 				Renderer.drawSprite(
 					rend.shader,
+					rend.uniformDict
+				)
+		return
+	@staticmethod
+	def drawTexts(index):
+		for (text, rend) in index[Text, Rend]:
+			if rend.visible:
+				Renderer.drawText(
+					text.string,
+					rend.shader,
+					text.font,
 					rend.uniformDict
 				)
 		return

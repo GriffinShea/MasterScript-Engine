@@ -1,5 +1,4 @@
 from config import *
-from Renderer import Renderer
 from Core.Props.BaseProp import BaseProp
 from Core.Props.Transf import Transf
 from Core.Props.Coll import Coll

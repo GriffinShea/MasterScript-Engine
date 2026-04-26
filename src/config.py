@@ -6,6 +6,7 @@ import time
 import random
 import gc
 import json
+import ctypes
 
 import attr
 import tracemalloc
@@ -52,7 +53,7 @@ DEFAULT_MEW_DYNAMIC = 0.5
 FLUID_FRICTION = 0.25
 
 #display settings
-LIMIT_FRAME_RATE = False
+LIMIT_FRAME_RATE = True
 FRAME_RATE = 60
 FRAME_TIME = 1000 / FRAME_RATE
 FULLSCREEN = False
@@ -104,6 +105,7 @@ SHADOW_MAPPING = GLOBAL_SHADER_SETTING[2] == "S"
 
 #debug modes
 DEBUG_SUPPRESS_WARNINGS = True
+DEBUG_SHOW_DELETED_KEYS = False
 DEBUG_PRINT_SHADERS = False
 DEBUG_RENDERER_OUTPUT = False
 DEBUG_TRACEMALLOC = False

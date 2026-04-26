@@ -1,7 +1,5 @@
 from config import *
 from Core.Props.BaseProp import BaseProp
-from Core.Index import Index
-from Core.Index import Obj
 
 @attr.define
 class Timer(BaseProp):

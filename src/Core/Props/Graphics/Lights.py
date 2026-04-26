@@ -2,6 +2,7 @@ from config import *
 from Core.Props.BaseProp import BaseProp
 
 #REVISIT: should these inherit? works for Scripts
+#REVISIT: shadows seem broken. dirlight and spotlight should use transf.cori for direction.
 
 @attr.define
 class Light(BaseProp):

@@ -5,6 +5,7 @@ from Core.Systems.Physics.rb import rb
 from Core.Props.Transf import Transf
 from Core.Props.Physics.Rigidbody import Rigidbody
 from Core.Props.Physics.PhysJoint import PhysJoint
+from Core.Props.Physics.PosLimit import PosLimit
 
 def resolveConstraints(index):
 	#for i in range(1):
@@ -21,6 +22,8 @@ def resolveConstraints(index):
 			
 			solvePinConstraint(joint, body1, transf1, body2, transf2)
 			solveAngleConstraint(joint, body1, transf1, body2, transf2)
+	
+	limitPositions(index)
 	
 	return
 	
@@ -92,3 +95,24 @@ def solveAngleConstraint(joint, body1, transf1, body2, transf2):
 	
 	return
 	
+def limitPositions(index):
+	for (posLimit, transf) in index[PosLimit, Transf]:
+		newPos = glm.vec3()
+		
+		if posLimit.xLimit:
+			newPos.x = max(posLimit.xLimit.x, min(posLimit.xLimit.y, transf.cpos.x))
+		else:
+			newPos.x = transf.cpos.x
+		
+		if posLimit.yLimit:
+			newPos.y = max(posLimit.yLimit.x, min(posLimit.yLimit.y, transf.cpos.y))
+		else:
+			newPos.y = transf.cpos.y
+		
+		if posLimit.zLimit:
+			newPos.z = max(posLimit.zLimit.x, min(posLimit.zLimit.y, transf.cpos.z))
+		else:
+			newPos.z = transf.cpos.z
+		
+		transf.setRpos(newPos)
+	return
